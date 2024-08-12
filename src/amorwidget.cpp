@@ -39,8 +39,8 @@ void AmorWidget::setPixmap(const QPixmap *pixmap)
     m_pixmap = pixmap;
 
     if ( pixmap ) {
-        const auto dpr = qApp->devicePixelRatio();
-        const auto mask = m_pixmap->scaled(m_pixmap->width() * dpr, m_pixmap->height() * dpr,
+        //const auto dpr = qApp->devicePixelRatio();
+        const auto mask = m_pixmap->scaled(m_pixmap->width(), m_pixmap->height(),
                                            Qt::KeepAspectRatio, Qt::FastTransformation).mask();
         if (!mask.isNull()) {
             setMask(mask);
@@ -54,8 +54,20 @@ void AmorWidget::setPixmap(const QPixmap *pixmap)
 void AmorWidget::paintEvent(QPaintEvent *)
 {
     if( m_pixmap ) {
+        //const auto dpr = qApp->devicePixelRatio();
         QPainter p( this );
         p.drawPixmap( 0, 0, *m_pixmap);
+        /*
+        else {
+            QPixmap scaledPixmap = m_pixmap->scaled(m_pixmap->width() * dpr,
+                                                    m_pixmap->height() * dpr,
+                                                    Qt::KeepAspectRatio,
+                                                    Qt::SmoothTransformation);
+            p.drawPixmap( 0, 0, scaledPixmap);
+            QString info = QString().sprintf("(%d,%d)", scaledPixmap.width(), scaledPixmap.height());
+            qDebug() << info;
+        }
+        */
     }
 }
 
@@ -68,6 +80,8 @@ void AmorWidget::mousePressEvent(QMouseEvent *me)
 
 void AmorWidget::mouseMoveEvent(QMouseEvent *me)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
     if( me->buttons() & Qt::LeftButton ) {
         if( !m_dragging && ( m_clickPos-me->globalPos() ).manhattanLength() > 3 ) {
             m_dragging = true;
